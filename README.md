@@ -13,6 +13,14 @@ A modern, full-featured **Flutter Book Store** application built with **Clean Ar
 
 ---
 
+### Splash Screen
+
+A custom animated book splash screen with smooth flipping pages, pulsing brand glow rings, timed auto-navigation, and instant tap-to-skip support.
+
+<img src="screenshots/splash.gif" width="320" alt="Animated Splash Screen" />
+
+---
+
 ### Book Details
 
 This screen provides complete information about any selected book — including full cover artwork, title, category, original and discounted prices, detailed description, instant favorite toggling, and a prominent **Add To Cart** action.
