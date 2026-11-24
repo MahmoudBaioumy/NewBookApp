@@ -1,0 +1,129 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:flustra_template/core/constants/app_api.dart';
+import 'package:flustra_template/core/services/app_session_manager.dart';
+import 'package:flustra_template/core/services/console_printer.dart';
+import 'package:flustra_template/modules/debug_helper/services/proxy_cach.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+
+import 'api_service_repo.dart';
+
+class DioApiService implements IApiService {
+  final Dio _dio = Dio();
+
+  DioApiService() {
+    _dio.options = BaseOptions(
+      baseUrl: ApiConstants.baseUrl,
+      receiveDataWhenStatusError: true,
+      connectTimeout: const Duration(seconds: 6000),
+      receiveTimeout: const Duration(seconds: 6000),
+      validateStatus: (status) => true,
+      responseType: ResponseType.json,
+    );
+
+    // -------------------------- proxy --------------------------
+    String? proxy = ProxyManager().getRunningProxy();
+    if (proxy != null) setProxy(proxy);
+
+    // -------------------------- logger --------------------------
+    bool showLoges = true;
+    // customization
+    if (showLoges) {
+      _dio.interceptors.add(
+        PrettyDioLogger(requestHeader: true, requestBody: true, responseBody: true, responseHeader: false, error: true, compact: true, maxWidth: 90),
+      );
+    }
+  }
+
+  @override
+  Future<Response> getData({required String uri, Map<String, dynamic>? query, Map<String, dynamic>? headers}) async {
+    return await _dio.get(
+      uri,
+      queryParameters: query,
+      options: _buildOptions(customHeaders: headers),
+    );
+  }
+
+  @override
+  Future<Response> postData({
+    required String uri,
+    dynamic data,
+    Map<String, dynamic>? query,
+    Map<String, dynamic>? headers,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+  }) async {
+    return await _dio.post(
+      uri,
+      data: data,
+      queryParameters: query,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      options: _buildOptions(customHeaders: headers),
+    );
+  }
+
+  @override
+  Future<Response> putData({required String uri, dynamic data, Map<String, dynamic>? query, Map<String, dynamic>? headers}) async {
+    return await _dio.put(
+      uri,
+      data: data,
+      queryParameters: query,
+      options: _buildOptions(customHeaders: headers),
+    );
+  }
+
+  @override
+  Future<Response> deleteData({required String uri, dynamic data, Map<String, dynamic>? query, Map<String, dynamic>? headers}) async {
+    return await _dio.delete(
+      uri,
+      data: data,
+      queryParameters: query,
+      options: _buildOptions(customHeaders: headers),
+    );
+  }
+
+  // ========================== 🔥 privet 🔥 ==========================
+  Options _buildOptions({Map<String, dynamic>? customHeaders}) {
+    final token = AppSessionManager.token;
+
+    final headers = {
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      if (customHeaders != null) ...customHeaders,
+    };
+
+    return Options(headers: headers);
+  }
+
+  // -------------------------- proxy --------------------------
+  String? _proxyRun;
+
+  @override
+  String? get proxyRun => _proxyRun;
+
+  @override
+  String? setProxy(String? proxy) {
+    try {
+      _dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () {
+          final client = HttpClient();
+          client.findProxy = (uri) => proxy == null ? 'DIRECT' : 'PROXY $proxy';
+          client.badCertificateCallback = (X509Certificate cert, String host, int port) => proxy != null;
+          return client;
+        },
+      );
+      _proxyRun = proxy;
+      ProxyManager().setRunningProxy(proxy);
+      return null;
+    } catch (e, s) {
+      _proxyRun = null;
+      ProxyManager().setRunningProxy(null);
+      "$e$s".printWithColor(textColor: ConsoleColor.red);
+      return e.toString();
+    }
+  }
+}

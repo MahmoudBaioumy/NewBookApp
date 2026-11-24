@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Teal Background Square -->
+  <rect width="120" height="120" fill="#2AA1A9" />
+  <!-- Top Horizontal Rod with End Rings -->
+  <circle cx="40" cy="24" r="2.2" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+  <line x1="42.2" y1="24" x2="77.8" y2="24" stroke="#FFFFFF" stroke-width="1.6" />
+  <circle cx="80" cy="24" r="2.2" fill="none" stroke="#FFFFFF" stroke-width="1.5" />
+  <!-- White Banner Ribbon with V-Point Bottom -->
+  <polygon points="48,25 72,25 72,62 60,67 48,62" fill="#FFFFFF" />
+  <!-- Letter K inside Banner -->
+  <path d="M55,34 L55,56 M55,45 L65,34 M58,42 L66,56" stroke="#2AA1A9" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  <!-- KETABY Text -->
+  <text x="60" y="92" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" letter-spacing="2.2" fill="#FFFFFF" text-anchor="middle">KETABY</text>
+</svg>

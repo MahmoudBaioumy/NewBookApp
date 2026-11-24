@@ -1,0 +1,43 @@
+import 'package:flustra_template/core/services/bot_toast/app_bot_toast.dart';
+
+import 'package:flustra_template/core/services/console_printer.dart';
+
+class Failure {
+  int code; // 200, 201, 400, 303..500 and so on
+  String message; // error , success
+  TypeMsg type;
+
+  Failure(this.code, this.message, this.type);
+
+  @override
+  String toString() {
+    return 'Failure{code: $code, message: $message, type: $type}';
+  }
+
+  void printInfo(String from) {
+    final textColor = switch (type) {
+      TypeMsg.none => ConsoleColor.defaultColor,
+      TypeMsg.ok => ConsoleColor.green,
+      TypeMsg.error => ConsoleColor.red,
+      TypeMsg.warning => ConsoleColor.yellow,
+    };
+    'from => $from : Failure{code: $code, message: $message, type: $type}'.printWithColor(textColor: textColor);
+  }
+}
+
+enum TypeMsg { none, ok, error, warning }
+
+extension FailureEx on Failure {
+  void showToast() {
+    final ToastType? toastType = switch (type) {
+      TypeMsg.none => null,
+      TypeMsg.ok => .info,
+      TypeMsg.error => .error,
+      TypeMsg.warning => .warning,
+    };
+
+    if (toastType != null) {
+      AppBotToast.show(message, type: toastType);
+    }
+  }
+}
